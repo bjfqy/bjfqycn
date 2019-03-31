@@ -1,0 +1,62 @@
+{extend name="public:base"}
+{block name="main"}
+<!-- 右侧主体开始 -->
+   
+<div class="layui-carousel" id="test1">
+  <div carousel-item>
+    <div>
+    条目1
+    <h1>北京风清扬摄影器材有限公司</h1>
+	</div>
+    <div>条目2</div>
+    <div>条目3</div>
+    <div>条目4</div>
+    <div>条目5</div>
+    <div>条目5</div>
+    <div>条目5</div>
+  </div>
+</div>
+<!-- 条目中可以是任意内容，如：<img src=""> -->
+
+<div class="layui-tab">
+  <ul class="layui-tab-title">
+    <li class="layui-this">佳能产品</li>
+    <li>尼康产品</li>
+    <li>索尼产品</li>
+    <li>松下产品</li>
+    <li>奥林巴斯</li>
+   
+  </ul>
+  <div class="layui-tab-content">
+    <div class="layui-tab-item layui-show">内容1</div>
+    <div class="layui-tab-item">
+    内容2
+	</div>
+    <div class="layui-tab-item">
+    内容3
+	</div>
+    <div class="layui-tab-item">
+    内容4
+	</div>
+    <div class="layui-tab-item">
+    内容5
+	</div>
+  </div>
+</div>
+
+
+<script>
+layui.use('carousel', function(){
+  var carousel = layui.carousel;
+  //建造实例
+  carousel.render({
+    elem: '#test1'
+    ,width: '100%' //设置容器宽度
+    ,height:'700px'//设置高度
+    ,arrow: 'always' //始终显示箭头
+    //,anim: 'updown' //切换动画方式
+  });
+});
+</script>
+<!-- 右侧主体结束 -->
+{/block}
