@@ -1,0 +1,191 @@
+//这个是幻灯片 后台提交数据库的过程  以及 jquery 的实现方法,采用动态ajax 提交的方式
+{include file="public:head"}
+
+          
+
+<div class="layui-container">
+
+ 
+  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+    <legend>可以直接幻灯片添加操作</legend>
+  </fieldset> 
+    <table class="layui-table">
+        <thead>
+          <tr>
+          <th>排序</th>
+          <th>图片</th>
+          <th>名称</th>
+          
+          <th>操作</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+          {volist name="slide" id="vo"}
+          <tr>
+            <input type="hidden" name="id"  value="{$vo.id}">
+            <td><div class="layui-input-inline"><input type="text" name="sort" value="{$vo.sort}" autocomplete="off" class="layui-input"></div></td>
+            <td><img src="{$vo.url}"></td>
+            <td><div class="layui-input-inline"><input type="text" name="title" value="{$vo.title}" autocomplete="off" class="layui-input"></div></td>
+            <td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button></td>
+          </tr>
+          {/volist}
+        </tbody>
+        <script>
+          
+        </script>
+</table>
+<button type="button" class="layui-btn" id="slidesave"><i class="layui-icon">&#xe654;</i>添加一张</button>
+</div>
+
+
+
+<script>
+//添加直接编辑事件
+$("input").change(function(){
+ 
+  var id = $(this).parentsUntil('tbody').find('input').val();
+
+  var name = $(this).attr('name');
+
+  var value = $(this).val();
+  //alert($(this).val());
+  //alert($(this).parentsUntil('tr').find(''));
+  console.log( $(this).attr('name'));
+
+  $.ajax({
+    url:'{:url('slidesave')}',
+    type:'post',
+    data:{id:id,name:name,value:value},
+  })
+});
+
+
+$('#slidesave').click(function(){
+
+    $("tr:last").after('<tr>            <input type="hidden" name="id"  value="">            <td><div class="layui-input-inline"><input type="text" name="sort" value="" autocomplete="off" class="layui-input"></div></td>            <td><img src=""></td>            <td><div class="layui-input-inline"><input type="text" name="title" value="" autocomplete="off" class="layui-input"></div></td><td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button></td></tr>');
+  
+   /* $("tr:last").html(' <tr>            <input type="hidden" name="id"  value="{$vo.id}">            <td><div class="layui-input-inline"><input type="text" name="sort" value="{$vo.sort}" autocomplete="off" class="layui-input"></div></td>            <td><img src="{$vo.url}"></td>            <td><div class="layui-input-inline"><input type="text" name="title" value="{$vo.title}" autocomplete="off" class="layui-input"></div></td>            <td><button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button></td>          </tr>');*/
+    
+});
+
+$("body").on('click','.demo-delete',function(){
+
+    //获得当前要删除的序列
+    var id = $(this).parentsUntil('tbody').find('input').val();
+
+    //获得当前图片的src
+    var src = $(this).parentsUntil('tbody').find('img')[0].src;
+
+    //console.log($(this).parentsUntil('tbody').find('input').val());
+
+    //获得当前标签
+    var tr = $(this).parentsUntil('tbody');
+
+    //移除当前的tr标签
+    tr.remove();
+
+
+    //console.log(src);  
+
+
+
+
+  
+/*
+ alert('OK')*/
+});
+
+
+
+
+
+
+
+
+layui.use('upload', function(){
+  var $ = layui.jquery
+  ,upload = layui.upload;
+  
+  
+
+  //console.log($("input[name='sort']").val());
+  
+  //多文件列表示例
+  var demoListView = $('#demoList')
+  ,uploadListIns = upload.render({
+    elem: '#testList'
+    ,url: '{:url('system/slideupimg')}'
+    ,accept: 'file'
+    ,data: {
+            title: function(){
+              return $(this).find("input[name='title']").val();
+            }
+            ,sort: function(){
+              return $(this).find("input[name='sort']").val();
+            }
+
+
+
+          }
+    ,multiple: true
+    ,auto: false
+    ,bindAction: '#testListAction'
+    ,choose: function(obj){   
+      var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+
+      //读取本地文件
+      obj.preview(function(index, file, result){
+        var tr = $(['<tr id="upload-'+ index +'">'
+          ,'<td>'+ file.name +'</td>'
+          ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+          ,'<td>等待上传</td>'
+          ,'<td><div class="layui-input-inline"><input type="text" name="title" autocomplete="off" class="layui-input"></div></td>'
+          ,'<td><div class="layui-input-inline"><input type="text" name="sort" autocomplete="off" class="layui-input"></div></td>'
+          ,'<td>'
+            ,'<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+            ,'<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+          ,'</td>'
+        ,'</tr>'].join(''));
+        
+
+        //单个重传
+        tr.find('.demo-reload').on('click', function(){
+          obj.upload(index, file);
+        });
+        
+        //删除
+        tr.find('.demo-delete').on('click', function(){
+          delete files[index]; //删除对应的文件
+          tr.remove();
+          uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+        });
+        
+        demoListView.append(tr);
+      });
+    }
+    ,done: function(res, index, upload){
+
+      if(res.code == 0){ //上传成功
+        var tr = demoListView.find('tr#upload-'+ index)
+        ,tds = tr.children();
+        tds.eq(0).html('<img src="'+res.dest+'">');
+        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+        tds.eq(3).html('<div class="layui-input-inline"><input type="text" name="number" autocomplete="off" class="layui-input"></div><input type="hidden" name="url" value="'+res.dest+'"'); //清空操作
+        return delete this.files[index]; //删除文件队列已经上传成功的文件
+      }
+      this.error(index, upload);
+    }
+    ,error: function(index, upload){
+
+      var tr = demoListView.find('tr#upload-'+ index)
+      ,tds = tr.children();
+      tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+      tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+    }
+  });
+  
+  
+  
+});
+</script>
